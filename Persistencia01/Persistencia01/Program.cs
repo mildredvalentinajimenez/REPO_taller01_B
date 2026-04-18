@@ -8,36 +8,57 @@ namespace Persistencia01
     {
         public static void Main(string[] args)
         {
-            Console.WriteLine("==== TALLER SECCION B =====");
-            Console.WriteLine("=== SISTEMA DE GESTIÓN EDUCATIVA IUJO ===\n");
+            Console.WriteLine("--- Taller Seccion B ---");
 
-            string registroBruto = " ID_777; Jose Cadenas; EXAMEN_FINAL.PDF; 95 ";
-
-            string dataLimpia = registroBruto.Trim(); 
-            string[] partes = dataLimpia.Split(';'); 
-
-            string id = partes[0].Trim();
-            string nombre = partes[1].Trim().ToUpper(); 
-            string archivo = partes[2].Trim().ToLower(); 
-            string nota = partes[3].Trim();
-
-            string rutaRaiz = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "DatosIUJO");
-            string rutaReportes = Path.Combine(rutaRaiz, "Reportes");
-
-            if (!Directory.Exists(rutaReportes)) {
-                Directory.CreateDirectory(rutaReportes);
+            // Datos del estudiante para procesar
+            string dato = " 102; Mildred_Jimenez; tarea_final.pdf; 20 ";
+            string p1 = dato.Trim(); 
+            string[] s = p1.Split(';'); 
+            
+            // Crear carpetas si no existen
+            string dir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "MisDatos", "Archivos");
+            if (!Directory.Exists(dir)) {
+                Directory.CreateDirectory(dir);
             }
 
-            string archivoTexto = Path.Combine(rutaReportes, "notas.txt");
-            using (StreamWriter sw = new StreamWriter(archivoTexto, true)) {
-                sw.WriteLine($"[{DateTime.Now:yyyy-MM-dd HH:mm}] ESTUDIANTE: {nombre} | NOTA: {nota}");
+            // Guardar registro en el archivo de notas
+            string f1 = Path.Combine(dir, "notas_finales.txt");
+            using (StreamWriter sw = new StreamWriter(f1, true)) {
+                sw.WriteLine("Alumno: " + s[1].Trim() + " | Calificacion: " + s[3].Trim());
             }
 
-            FileInfo info = new FileInfo(archivoTexto);
-            Console.WriteLine($"\n[ESTADÍSTICAS] El archivo de notas pesa: {info.Length} bytes.");
+            // Desafio 1: Validar seguridad de la clave
+            string miClave = "usuario; pass123";
+            if (miClave.Contains("123")) {
+                string f2 = Path.Combine(dir, "alerta.txt");
+                File.WriteAllText(f2, "alerta de seguridad: clave muy facil");
+            }
 
-            Console.WriteLine("\n=== PROCESO FINALIZADO. ===");
-            Console.WriteLine("Presione una tecla para salir...");
+            // Desafio 2: Copiar archivo byte a byte con FileStream
+            string origenImg = Path.Combine(dir, "imagen.jpg");
+            string destinoImg = Path.Combine(dir, "imagen_nueva.jpg");
+            
+            if (!File.Exists(origenImg)) {
+                File.WriteAllText(origenImg, "bin"); 
+            }
+
+            using (FileStream fs1 = new FileStream(origenImg, FileMode.Open))
+            using (FileStream fs2 = new FileStream(destinoImg, FileMode.Create)) {
+                fs1.CopyTo(fs2);
+            }
+
+            // Desafio 3: Buscar y borrar archivos mayores a 5KB
+            DirectoryInfo info = new DirectoryInfo(dir);
+            FileInfo[] lista = info.GetFiles();
+            
+            foreach (FileInfo archi in lista) {
+                if (archi.Length > 5120) { 
+                    Console.WriteLine("Quitando archivo pesado: " + archi.Name);
+                    archi.Delete();
+                }
+            }
+
+            Console.WriteLine("Proceso finalizado");
             Console.ReadKey(true);
         }
     }
